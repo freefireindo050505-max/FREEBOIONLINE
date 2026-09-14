@@ -1,7 +1,247 @@
 
 
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Loja Virtual</title>
+    <style>
+        /* Estilos Básicos */
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
 
+        /* Cabeçalho */
+        header {
+            background-color: #d32f2f; /* Cor vermelha estilo Friboi/Açougue */
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Banner Rotativo */
+        .banner-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+
+        .banner-wrapper {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none; /* Oculta barra de rolagem no IE */
+            scrollbar-width: none; /* Oculta barra de rolagem no Firefox */
+        }
+        
+        .banner-wrapper::-webkit-scrollbar {
+            display: none; /* Oculta barra de rolagem no Chrome/Safari */
+        }
+
+        .banner-item {
+            min-width: 100%;
+            height: 300px;
+            background-color: #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .banner-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10;
+        }
+
+        .btn-left { left: 10px; }
+        .btn-right { right: 10px; }
+
+        /* Rodapé em Sanfona (Accordion) */
+        footer {
+            background-color: #222;
+            color: white;
+            padding: 40px 20px;
+            margin-top: 40px;
+        }
+
+        .footer-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .footer-column {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .footer-column h3 {
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .footer-content {
+            display: block; /* Visível por padrão no Desktop */
+        }
+
+        .footer-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-content ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-content ul li a {
+            color: #aaa;
+            text-decoration: none;
+        }
+
+        /* Responsivo para Celulares */
+        @media (max-width: 768px) {
+            .footer-content {
+                display: none; /* Oculta no celular */
+            }
+            .footer-column.active .footer-content {
+                display: block; /* Mostra apenas a coluna clicada */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+        <h1>Bem-vindo à Loja</h1>
+    </header>
+
+    <!-- Área Principal -->
+    <main>
+        <!-- Carrossel de Banners (Inspirado no seu script) -->
+        <div class="banner-container">
+            <button class="banner-btn btn-left" onclick="manualScroll(-1)">&#10094;</button>
+            <div class="banner-wrapper" id="bannerWrapper">
+                <div class="banner-item" style="background-color: #ffcccc;">Promoção 1</div>
+                <div class="banner-item" style="background-color: #ccffcc;">Novidades 2</div>
+                <div class="banner-item" style="background-color: #ccccff;">Oferta Especial 3</div>
+            </div>
+            <button class="banner-btn btn-right" onclick="manualScroll(1)">&#10095;</button>
+        </div>
+    </main>
+
+    <!-- Rodapé estilo Sanfona (Inspirado no seu script) -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-column" onclick="toggleAccordion(this)">
+                <h3>Institucional <span>▼</span></h3>
+                <div class="footer-content">
+                    <ul>
+                        <li><a href="#">Quem Somos</a></li>
+                        <li><a href="#">Nossas Lojas</a></li>
+                        <li><a href="#">Trabalhe Conosco</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-column" onclick="toggleAccordion(this)">
+                <h3>Ajuda e Suporte <span>▼</span></h3>
+                <div class="footer-content">
+                    <ul>
+                        <li><a href="#">Entregas e Frete</a></li>
+                        <li><a href="#">Trocas e Devoluções</a></li>
+                        <li><a href="#">Fale Conosco</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // 1. Script do Banner Rotativo Automático
+        const wrapper = document.getElementById('bannerWrapper');
+        let autoplayInterval;
+        const intervalTime = 5000; // 5 segundos
+
+        function scrollBanner(direction) {
+            const itemWidth = wrapper.querySelector('.banner-item').clientWidth;
+            const gap = parseInt(window.getComputedStyle(wrapper).gap) || 0;
+            const maxScrollLeft = wrapper.scrollWidth - wrapper.clientWidth;
+            
+            if (direction === 1 && wrapper.scrollLeft >= maxScrollLeft - 10) {
+                wrapper.scrollTo({ left: 0, behavior: 'smooth' }); // Volta pro início
+            } else if (direction === -1 && wrapper.scrollLeft <= 0) {
+                wrapper.scrollTo({ left: maxScrollLeft, behavior: 'smooth' }); // Vai pro fim
+            } else {
+                wrapper.scrollBy({
+                    left: (itemWidth + gap) * direction,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        function manualScroll(direction) {
+            scrollBanner(direction);
+            startAutoplay(); // Reinicia o timer ao clicar
+        }
+
+        function startAutoplay() {
+            clearInterval(autoplayInterval);
+            autoplayInterval = setInterval(() => {
+                scrollBanner(1);
+            }, intervalTime);
+        }
+
+        // Inicia o banner ao carregar
+        window.addEventListener('load', () => {
+            startAutoplay();
+        });
+
+        // 2. Script do Rodapé Sanfona (Accordion) para Celular
+        function toggleAccordion(element) {
+            if (window.innerWidth <= 768) {
+                const isActive = element.classList.contains('active');
+                
+                // Fecha todos abertos
+                document.querySelectorAll('.footer-column').forEach(col => {
+                    col.classList.remove('active');
+                });
+                
+                // Se não estava ativo, abre este
+                if (!isActive) {
+                    element.classList.add('active');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
 
 
 
